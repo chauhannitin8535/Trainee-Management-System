@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Trainees - NTPC TMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f1117; color: white; display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #1a1d2e; border-right: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; padding: 24px 0; position: fixed; height: 100vh; }
+        .sidebar-logo { padding: 0 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.07); margin-bottom: 16px; }
+        .sidebar-logo h2 { font-size: 16px; font-weight: 700; }
+        .sidebar-logo p { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: rgba(255,255,255,0.5); font-size: 14px; cursor: pointer; transition: all 0.2s; text-decoration: none; border-left: 3px solid transparent; }
+        .nav-item:hover, .nav-item.active { color: white; background: rgba(0,82,204,0.15); border-left-color: #0052cc; }
+        .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .nav-section { padding: 16px 24px 8px; font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 1px; text-transform: uppercase; }
+        .sidebar-bottom { margin-top: auto; padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.07); }
+        .logout-btn { display: flex; align-items: center; gap: 10px; color: rgba(255,100,100,0.7); font-size: 14px; cursor: pointer; background: none; border: none; width: 100%; padding: 8px 0; }
+        .logout-btn:hover { color: #ff6b6b; }
+
+        .main { margin-left: 260px; flex: 1; padding: 32px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .topbar h1 { font-size: 24px; font-weight: 700; }
+        .topbar p { font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+        .add-btn { background: linear-gradient(135deg,#0052cc,#0066ff); border: none; color: white; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+        .add-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .filters { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 200px; position: relative; }
+        .search-box input { width: 100%; background: #1a1d2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 11px 14px 11px 40px; color: white; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; }
+        .search-box input:focus { border-color: rgba(0,82,204,0.5); }
+        .search-box svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: rgba(255,255,255,0.3); }
+        .filter-select { background: #1a1d2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 11px 14px; color: white; font-size: 14px; font-family: 'Inter', sans-serif; outline: none; cursor: pointer; }
+        .filter-select:focus { border-color: rgba(0,82,204,0.5); }
+        .filter-select option { background: #1a1d2e; }
+
+        .table-card { background: #1a1d2e; border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; overflow: hidden; }
+        .table-header { padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; justify-content: space-between; align-items: center; }
+        .table-header h3 { font-size: 16px; font-weight: 600; }
+        .count-badge { background: rgba(0,82,204,0.15); color: #4d9fff; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { padding: 12px 20px; text-align: left; font-size: 11px; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; }
+        td { padding: 16px 20px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#0052cc,#00a86b); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+        .trainee-info { display: flex; align-items: center; gap: 12px; }
+        .trainee-name { font-weight: 600; font-size: 14px; }
+        .trainee-email { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+        .badge-green { background: rgba(0,200,100,0.15); color: #00c864; }
+        .badge-red { background: rgba(255,80,80,0.15); color: #ff5050; }
+        .badge-blue { background: rgba(0,120,255,0.15); color: #4d9fff; }
+        .badge-yellow { background: rgba(255,180,0,0.15); color: #ffb400; }
+        .badge-purple { background: rgba(168,85,247,0.15); color: #a855f7; }
+
+        .action-btns { display: flex; gap: 6px; }
+        .btn-view { background: rgba(0,82,204,0.15); border: 1px solid rgba(0,82,204,0.3); color: #4d9fff; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+        .btn-view:hover { background: rgba(0,82,204,0.3); }
+        .btn-delete { background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.2); color: #ff5050; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+        .btn-delete:hover { background: rgba(255,80,80,0.25); }
+
+        .empty-state { text-align: center; padding: 80px 20px; color: rgba(255,255,255,0.3); }
+        .empty-state svg { width: 56px; height: 56px; margin: 0 auto 16px; display: block; stroke: rgba(255,255,255,0.15); }
+        .empty-state p { font-size: 16px; margin-bottom: 8px; }
+        .empty-state span { font-size: 13px; }
+
+        .loading { text-align: center; padding: 60px; color: rgba(255,255,255,0.3); font-size: 14px; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; display: none; align-items: center; justify-content: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: #1a1d2e; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 28px; max-width: 400px; width: 90%; }
+        .modal h3 { font-size: 18px; margin-bottom: 12px; }
+        .modal p { color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 24px; }
+        .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+        .btn-cancel-modal { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'Inter', sans-serif; }
+        .btn-confirm-delete { background: #ff5050; border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <h3>🗑️ Delete Trainee?</h3>
+        <p>Are you sure you want to delete this trainee? This action cannot be undone.</p>
+        <div class="modal-btns">
+            <button class="btn-cancel-modal" onclick="closeModal()">Cancel</button>
+            <button class="btn-confirm-delete" onclick="confirmDelete()">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <div class="sidebar-logo">
+        <h2>⚡ NTPC TMS</h2>
+        <p>Trainee Management System</p>
+    </div>
+    <div class="nav-section">Main</div>
+    <a class="nav-item" href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+    </a>
+    <div class="nav-section">Trainees</div>
+    <a class="nav-item" href="add-trainee.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Add Trainee
+    </a>
+    <a class="nav-item active" href="trainees.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        All Trainees
+    </a>
+    <a class="nav-item" href="attendance.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Attendance
+    </a>
+    <div class="sidebar-bottom">
+        <button class="logout-btn" onclick="logout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+        </button>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+    <div class="topbar">
+        <div>
+            <h1>All Trainees</h1>
+            <p>Manage and view all registered trainees</p>
+        </div>
+        <button class="add-btn" onclick="window.location.href='add-trainee.html'">+ Add Trainee</button>
+    </div>
+
+    <div class="filters">
+        <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="Search by name, email, college..." oninput="filterTrainees()" />
+        </div>
+        <select class="filter-select" id="courseFilter" onchange="filterTrainees()">
+            <option value="">All Courses</option>
+            <option value="BTech">B.Tech</option>
+            <option value="MTech">M.Tech</option>
+            <option value="BCA">BCA</option>
+            <option value="MCA">MCA</option>
+            <option value="Other">Other</option>
+        </select>
+        <select class="filter-select" id="statusFilter" onchange="filterTrainees()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+        </select>
+        <select class="filter-select" id="certFilter" onchange="filterTrainees()">
+            <option value="">All Certificates</option>
+            <option value="Yes">Issued</option>
+            <option value="No">Not Issued</option>
+        </select>
+    </div>
+
+    <div class="table-card">
+        <div class="table-header">
+            <h3>Trainees List</h3>
+            <span class="count-badge" id="countBadge">0 trainees</span>
+        </div>
+        <div id="tableContainer">
+            <div class="loading">Loading trainees...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) window.location.href = '/';
+
+    let allTrainees = [];
+    let deleteId = null;
+
+    async function loadTrainees() {
+        try {
+            const res = await fetch('http://localhost:5000/api/trainees', { credentials: 'include' });
+            const data = await res.json();
+            if (data.success) {
+                allTrainees = data.trainees || [];
+                renderTrainees(allTrainees);
+            }
+        } catch(e) {
+            document.getElementById('tableContainer').innerHTML = '<div class="empty-state"><p>Error loading trainees</p></div>';
+        }
+    }
+
+    function renderTrainees(trainees) {
+        document.getElementById('countBadge').textContent = `${trainees.length} trainee${trainees.length !== 1 ? 's' : ''}`;
+        const container = document.getElementById('tableContainer');
+        if (!trainees.length) {
+            container.innerHTML = `<div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <p>No trainees found</p>
+                <span>Try adjusting your filters or add a new trainee</span>
+            </div>`;
+            return;
+        }
+
+        container.innerHTML = `<table>
+            <thead><tr>
+                <th>Trainee</th>
+                <th>Mobile</th>
+                <th>Course</th>
+                <th>Branch</th>
+                <th>Training Period</th>
+                <th>Status</th>
+                <th>Certificate</th>
+                <th>Work</th>
+                <th>Actions</th>
+            </tr></thead>
+            <tbody>${trainees.map(t => {
+                const isActive = new Date(t.to_date) >= new Date();
+                const initials = t.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                return `<tr>
+                    <td>
+                        <div class="trainee-info">
+                            <div class="avatar">${initials}</div>
+                            <div>
+                                <div class="trainee-name">${t.name}</div>
+                                <div class="trainee-email">${t.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="color:rgba(255,255,255,0.6)">${t.mobile}</td>
+                    <td><span class="badge badge-blue">${t.course}</span></td>
+                    <td style="color:rgba(255,255,255,0.6);font-size:13px">${t.branch}</td>
+                    <td style="font-size:12px;color:rgba(255,255,255,0.5)">${t.from_date?.split('T')[0]} →<br>${t.to_date?.split('T')[0]}</td>
+                    <td><span class="badge ${isActive ? 'badge-green' : 'badge-red'}">${isActive ? '● Active' : '✓ Done'}</span></td>
+                    <td><span class="badge ${t.certificate_issued === 'Yes' ? 'badge-green' : 'badge-yellow'}">${t.certificate_issued}</span></td>
+                    <td><span class="badge ${t.work_complete === 'Yes' ? 'badge-green' : 'badge-yellow'}">${t.work_complete}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-view" onclick="window.location.href='trainee-detail.html?id=${t.id}'">View</button>
+                            <button class="btn-delete" onclick="openDeleteModal(${t.id})">✕</button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('')}</tbody>
+        </table>`;
+    }
+
+    function filterTrainees() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const course = document.getElementById('courseFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        const cert = document.getElementById('certFilter').value;
+
+        const filtered = allTrainees.filter(t => {
+            const matchSearch = !search || t.name.toLowerCase().includes(search) || t.email.toLowerCase().includes(search) || t.college.toLowerCase().includes(search);
+            const matchCourse = !course || t.course === course;
+            const isActive = new Date(t.to_date) >= new Date();
+            const matchStatus = !status || (status === 'active' ? isActive : !isActive);
+            const matchCert = !cert || t.certificate_issued === cert;
+            return matchSearch && matchCourse && matchStatus && matchCert;
+        });
+        renderTrainees(filtered);
+    }
+
+    function openDeleteModal(id) {
+        deleteId = id;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('deleteModal').classList.remove('show');
+        deleteId = null;
+    }
+
+    async function confirmDelete() {
+        if (!deleteId) return;
+        try {
+            const res = await fetch(`http://localhost:5000/api/trainees/${deleteId}`, {
+                method: 'DELETE', credentials: 'include'
+            });
+            const data = await res.json();
+            if (data.success) {
+                closeModal();
+                loadTrainees();
+            }
+        } catch(e) { alert('Error deleting trainee'); }
+    }
+
+    function logout() {
+        localStorage.removeItem('user');
+        window.location.href = '/';
+    }
+
+    loadTrainees();
+</script>
+</body>
+</html>
